@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import { Candle, CandleResponse } from './models/candle';
-import { Order, OrderResponse } from './models/order';
+import { Order, OrderBook } from './models/order';
+import { Interval } from './models/utils';
 
 const BASE_ENDPOINT = "https://api.binance.com";
 
@@ -10,9 +11,10 @@ const get_all_trading_pairs = async (): Promise<string[]> => {
     return json.symbols.map((symbol: any) => symbol.symbol as string);
 }
 
-const get_candle_stick = async (symbol: string, interval: string, start_time=Date.now() - (1000 * 60 * 60), end_time=Date.now()): Promise<Candle[]> => {
+const get_candle_stick = async (symbol: string = 'BTCUSDT', interval: Interval = '5m', start_time?: number, end_time?: number): Promise<Candle[]> => {
     const response = await fetch(`${BASE_ENDPOINT}/api/v3/klines?symbol=${symbol}&interval=${interval}${start_time ? `&startTime=${start_time}` : ''}${start_time ? `&endTime=${end_time}` : ''}`);
     const json = await response.json() as CandleResponse;
+    console.log(json);
     return json.map(from_list_to_candle);
 }
 
@@ -37,14 +39,20 @@ const from_list_to_order = (list: Array<string>): Order => {
     return obj;
 }
 
-const getDepth = async (direction: 'asks' | 'bids' = 'asks', pair = 'BTCUSDT', limit = 10): Promise<Order[]> => {
+const getOrderBook = async (pair = 'BTCUSDT', limit: 5 | 10 | 20 | 50 | 100 | 500 | 1000 | 5000 = 10): Promise<OrderBook> => {
     const response = await fetch(`${BASE_ENDPOINT}/api/v3/depth?symbol=${pair}&limit=${limit}`);
-    const json = await response.json() as OrderResponse;
+    const json = await response.json() as OrderBook;
+    return json;
+}
+
+const getDepth = async (direction: 'asks' | 'bids' = 'asks', pair = 'BTCUSDT', limit: 5 | 10 | 20 | 50 | 100 | 500 | 1000 | 5000 = 10): Promise<Order[]> => {
+    const json = await getOrderBook(pair, limit);
     return json[direction].map(from_list_to_order);
 }
 
 export {
     get_all_trading_pairs,
     get_candle_stick,
-    getDepth
+    getDepth,
+    getOrderBook
 }

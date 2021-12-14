@@ -1,5 +1,5 @@
-# Typescript starter
+# Binance interactions
 
 &copy; Maxence Raballand 2021
 
-Starter for a simple typescript (node) project with node-fetch included.
+Simple interactions with the binance api

@@ -1,5 +1,7 @@
 import sqlite3 from 'sqlite3';
+import { get_candle_stick } from './binance.js';
 import { Candle } from './models/candle.js';
+import { Interval } from './models/utils.js';
 import { get_candle_id } from './utils.js';
 
 const sqlite = sqlite3.verbose();
@@ -45,7 +47,9 @@ const retrieveCandles = (db: sqlite3.Database, pair: string, startTime: number, 
     })
 }
 
-const saveCandles = (db: sqlite3.Database, candles: Array<any>, pair: string) => {
+const refreshDataCandle = async (db: sqlite3.Database, pair: string = 'BTCUSDT', duration: Interval = '5m') => {
+    const candles = await get_candle_stick(pair, duration);
+
     db.serialize(() => {
         const stmt = db.prepare(`INSERT INTO candles VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`);
         candles.forEach(candle => {
@@ -62,5 +66,5 @@ export {
     openDatabase,
     createTables,
     retrieveCandles,
-    saveCandles
+    refreshDataCandle
 }

@@ -3,7 +3,7 @@ type Order = {
     qty: string,
 }
 
-type OrderResponse = {
+type OrderBook = {
     lastUpdatePriceId: number,
     bids: Array<Array<string>>,
     asks: Array<Array<string>>,
@@ -11,5 +11,5 @@ type OrderResponse = {
 
 export {
     Order,
-    OrderResponse
+    OrderBook
 }
